@@ -1,5 +1,5 @@
 export const BookTable = ({ books, onSort, onEdit }) => {
-  console.log("Books in Table:", books); // Verify the data here
+  console.log("Books in Table:", books); 
 
   const handleEdit = (book) => {
     onEdit(book);

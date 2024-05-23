@@ -1,10 +1,10 @@
-// src/Main.js
-
 import React, { useEffect, useState } from "react";
 import { fetchBooks } from "../service/api";
 import { BookTable } from "./bookTables";
 import Pagination from "./pagination";
 import EditForm from "./EditForm";
+import { SignedIn, useUser } from "@clerk/clerk-react";
+import { UserButton } from "@clerk/clerk-react";
 
 const Main = () => {
   const [books, setBooks] = useState([]);
@@ -15,6 +15,8 @@ const Main = () => {
   const [loading, setLoading] = useState(true);
   const [authorSearch, setAuthorSearch] = useState("");
   const [selectedBook, setSelectedBook] = useState(null);
+
+  const { firstName } = useUser();
 
   useEffect(() => {
     const getBooks = async () => {
@@ -38,22 +40,20 @@ const Main = () => {
 
   const handleEdit = (book) => {
     setSelectedBook(book);
-    // Handle displaying the edit form or modal
   };
 
   const handleSave = (editedBook) => {
-    // Update the book in the books array
     const updatedBooks = books.map((book) =>
       book === selectedBook ? editedBook : book
     );
     setBooks(updatedBooks);
-    // Close the edit form or modal
+
     setSelectedBook(null);
   };
 
   const handleAuthorSearch = (event) => {
     setAuthorSearch(event.target.value);
-    setCurrentPage(1); // Reset to first page whenever search query changes
+    setCurrentPage(1);
   };
 
   const handleSort = (key) => {
@@ -77,7 +77,7 @@ const Main = () => {
 
   const handleRecordsPerPageChange = (newRecordsPerPage) => {
     setRecordsPerPage(newRecordsPerPage);
-    setCurrentPage(1); // Reset to first page whenever records per page change
+    setCurrentPage(1);
   };
 
   const downloadCSV = () => {
@@ -93,43 +93,50 @@ const Main = () => {
   };
 
   return (
-    <div>
-      <div className="flex justify-center items-center bg-blue-600 text-white p-4">
-        <h1 className="text-3xl font-semibold">Admin Dashboard</h1>
-      </div>
-      <div className="bg-blue-600 flex justify-around">
-        <input
-          type="text"
-          value={authorSearch}
-          onChange={handleAuthorSearch}
-          placeholder="Search by author"
-          className="px-10 py-4 rounded-xl border my-10"
-        />
-        <button className="text-white px-10 my-10 bg-green-500 hover:bg-green-700 rounded-xl" onClick={downloadCSV}>Download CSV</button>
-      </div>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          <BookTable books={books} onSort={handleSort} onEdit={handleEdit} />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            recordsPerPage={recordsPerPage}
-            onRecordsPerPageChange={handleRecordsPerPageChange}
+    <SignedIn>
+      <div>
+        <div className="flex justify-around items-center space-x-6 bg-blue-600 text-white p-4">
+          <h1 className="text-3xl font-semibold">Admin Dashboard</h1>
+          <div className="w-20 text-5xl"><UserButton /></div>
+        </div>
+        <div className="bg-blue-600 flex justify-around">
+          <input
+            type="text"
+            value={authorSearch}
+            onChange={handleAuthorSearch}
+            placeholder="Search by author"
+            className="px-10 py-4 rounded-xl border my-10"
           />
-          
-        </>
-      )}
-      {selectedBook && (
-        <EditForm
-          book={selectedBook}
-          onSave={handleSave}
-          onCancel={() => setSelectedBook(null)}
-        />
-      )}
-    </div>
+          <button
+            className="text-white px-10 my-10 bg-green-500 hover:bg-green-700 rounded-xl"
+            onClick={downloadCSV}
+          >
+            Download CSV
+          </button>
+        </div>
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <>
+            <BookTable books={books} onSort={handleSort} onEdit={handleEdit} />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              recordsPerPage={recordsPerPage}
+              onRecordsPerPageChange={handleRecordsPerPageChange}
+            />
+          </>
+        )}
+        {selectedBook && (
+          <EditForm
+            book={selectedBook}
+            onSave={handleSave}
+            onCancel={() => setSelectedBook(null)}
+          />
+        )}
+      </div>
+    </SignedIn>
   );
 };
 

@@ -1,4 +1,4 @@
-// src/services/api.js
+
 
 const BASE_URL = 'https://openlibrary.org';
 
@@ -12,10 +12,10 @@ export const fetchBooks = async (page = 1, recordsPerPage = 10) => {
     const data = await response.json();
     console.log('Fetched Data:', data);
 
-    // Check if the data contains docs
+   
     if (data.docs && data.docs.length > 0) {
       const books = data.docs.map(book => ({
-        ratings_average: book.average_rating || 'N/A', // Adjust the key if necessary
+        ratings_average: book.average_rating || 'N/A', 
         author_name: book.author_name ? book.author_name.join(', ') : 'N/A',
         title: book.title || 'N/A',
         first_publish_year: book.first_publish_year || 'N/A',
